@@ -89,3 +89,7 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 tasks.whenTaskAdded { task ->
     task.dependsOn ktlintFormat
 }
+
+kotlin.sourceSets.all {
+    languageSettings.optIn("kotlin.RequiresOptIn")
+}
