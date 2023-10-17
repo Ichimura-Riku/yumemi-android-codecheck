@@ -53,9 +53,9 @@ class OneFragment : Fragment(R.layout.fragment_one) {
     }
 
     fun gotoRepositoryFragment(item: Item) {
-        val _action = OneFragmentDirections
+        val action = OneFragmentDirections
             .actionRepositoriesFragmentToRepositoryFragment(item = item)
-        findNavController().navigate(_action)
+        findNavController().navigate(action)
     }
 }
 
@@ -76,22 +76,22 @@ class CustomAdapter(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
     interface OnItemClickListener {
-    	fun itemClick(item: Item)
+        fun itemClick(item: Item)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    	val _view = LayoutInflater.from(parent.context)
+        val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.layout_item, parent, false)
-    	return ViewHolder(_view)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    	val _item = getItem(position)
+        val item = getItem(position)
         (holder.itemView.findViewById<View>(R.id.repositoryNameView) as TextView).text =
-            _item.name
+            item.name
 
-    	holder.itemView.setOnClickListener {
-            itemClickListener.itemClick(_item)
-    	}
+        holder.itemView.setOnClickListener {
+            itemClickListener.itemClick(item)
+        }
     }
 }
