@@ -13,11 +13,7 @@ import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import jp.co.yumemi.android.code_check.TopActivity.Companion.lastSearchDate
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
@@ -32,62 +28,57 @@ class OneViewModel(
 ) : ViewModel() {
 
     // 検索結果
-    @OptIn(DelicateCoroutinesApi::class)
-    fun searchResults(inputText: String): List<Item> = runBlocking {
+    suspend fun searchResults(inputText: String): List<Item> = withContext(Dispatchers.IO) {
         val client = HttpClient(Android)
 
 
-        return@runBlocking GlobalScope.async {
-            try {
-                val response: HttpResponse =
-                    client.get("https://api.github.com/search/repositories") {
-                        header("Accept", "application/vnd.github.v3+json")
-                        parameter("q", inputText)
-                    }
+        try {
 
-                val jsonBody = JSONObject(response.receive<String>())
-
-                val jsonItems = jsonBody.optJSONArray("items")!!
-
-                val items = mutableListOf<Item>()
-
-                /**
-                 * アイテムの個数分ループする
-                 */
-                for (i in 0 until jsonItems.length()) {
-                    val jsonItem = jsonItems.optJSONObject(i)!!
-                    val name = jsonItem.optString("full_name")
-                    val ownerIconUrl =
-                        jsonItem.optJSONObject("owner")?.optString("avatar_url") ?: ""
-                    val language = jsonItem.optString("language") ?: ""
-                    val stargazersCount = jsonItem.optLong("stargazers_count")
-                    val watchersCount = jsonItem.optLong("watchers_count")
-                    val forksCount = jsonItem.optLong("forks_count")
-                    val openIssuesCount = jsonItem.optLong("open_issues_count")
-
-                    items.add(
-                        Item(
-                            name = name,
-                            ownerIconUrl = ownerIconUrl,
-                            language = context.getString(R.string.written_language, language),
-                            stargazersCount = stargazersCount,
-                            watchersCount = watchersCount,
-                            forksCount = forksCount,
-                            openIssuesCount = openIssuesCount
-                        )
-                    )
-                }
-
-                lastSearchDate = Date()
-
-                return@async items.toList()
-            } catch (e: Exception) {
-                return@async emptyList()
+            val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
+                header("Accept", "application/vnd.github.v3+json")
+                parameter("q", inputText)
             }
-        }.await()
+
+            val jsonBody = JSONObject(response.receive<String>())
+
+            val jsonItems = jsonBody.optJSONArray("items")!!
+
+            val items = mutableListOf<Item>()
+
+            /**
+             * アイテムの個数分ループする
+             */
+            for (i in 0 until jsonItems.length()) {
+                val jsonItem = jsonItems.optJSONObject(i)!!
+                val name = jsonItem.optString("full_name")
+                val ownerIconUrl = jsonItem.optJSONObject("owner")?.optString("avatar_url") ?: ""
+                val language = jsonItem.optString("language") ?: ""
+                val stargazersCount = jsonItem.optLong("stargazers_count")
+                val watchersCount = jsonItem.optLong("watchers_count")
+                val forksCount = jsonItem.optLong("forks_count")
+                val openIssuesCount = jsonItem.optLong("open_issues_count")
+
+                items.add(
+                    Item(
+                        name = name,
+                        ownerIconUrl = ownerIconUrl,
+                        language = context.getString(R.string.written_language, language),
+                        stargazersCount = stargazersCount,
+                        watchersCount = watchersCount,
+                        forksCount = forksCount,
+                        openIssuesCount = openIssuesCount
+                    )
+                )
+            }
+
+            lastSearchDate = Date()
+
+            return@withContext items.toList()
+        } catch (e: Exception) {
+            Log.e("SearchError", "$e")
+            return@withContext emptyList()
+        }
     }
-
-
 }
 
 @Parcelize
