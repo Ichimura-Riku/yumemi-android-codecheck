@@ -19,7 +19,7 @@ class OneFragment : Fragment(R.layout.fragment_one) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentOneBinding.bind(view)
+        val binding: FragmentOneBinding? = FragmentOneBinding.bind(view)
 
         val viewModel = OneViewModel(requireContext())
 
@@ -32,8 +32,8 @@ class OneFragment : Fragment(R.layout.fragment_one) {
             }
         })
 
-        binding.searchInputText
-            .setOnEditorActionListener { editText, action, _ ->
+        binding?.searchInputText?.let { searchInputText ->
+            searchInputText.setOnEditorActionListener { editText, action, _ ->
                 if (action == EditorInfo.IME_ACTION_SEARCH) {
                     editText.text.toString().let {
                         viewModel.searchResults(it).apply {
@@ -44,11 +44,12 @@ class OneFragment : Fragment(R.layout.fragment_one) {
                 }
                 return@setOnEditorActionListener false
             }
+        }
 
-        binding.recyclerView.also {
-            it.layoutManager = layoutManager
-            it.addItemDecoration(dividerItemDecoration)
-            it.adapter = adapter
+        binding?.recyclerView.also {
+            it?.layoutManager = layoutManager
+            it?.addItemDecoration(dividerItemDecoration)
+            it?.adapter = adapter
         }
     }
 
@@ -87,8 +88,10 @@ class CustomAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        (holder.itemView.findViewById<View>(R.id.repositoryNameView) as TextView).text =
-            item.name
+//        (holder.itemView.findViewById<View>(R.id.repositoryNameView) as TextView).text =
+//            item.name
+        val repositoryNameView = holder.itemView.findViewById<TextView>(R.id.repositoryNameView)
+        repositoryNameView.text = item.name
 
         holder.itemView.setOnClickListener {
             itemClickListener.itemClick(item)

@@ -17,7 +17,6 @@ class TwoFragment : Fragment(R.layout.fragment_two) {
     private val args: TwoFragmentArgs by navArgs()
 
     private var binding: FragmentTwoBinding? = null
-    private val _binding get() = binding!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -28,12 +27,19 @@ class TwoFragment : Fragment(R.layout.fragment_two) {
 
         val item = args.item
 
-        _binding.ownerIconView.load(item.ownerIconUrl)
-        _binding.nameView.text = item.name
-        _binding.languageView.text = item.language
-        _binding.starsView.text = getString(R.string.stars, "${item.stargazersCount}")
-        _binding.watchersView.text = getString(R.string.watchers, "${item.watchersCount}")
-        _binding.forksView.text = getString(R.string.forks, "${item.forksCount}")
-        _binding.openIssuesView.text = getString(R.string.open_issues, "${item.openIssuesCount}")
+        binding?.apply {
+            ownerIconView.load(item.ownerIconUrl)
+            nameView.text = item.name
+            languageView.text = item.language
+            starsView.text = getString(R.string.stars, "${item.stargazersCount}")
+            watchersView.text = getString(R.string.watchers, "${item.watchersCount}")
+            forksView.text = getString(R.string.forks, "${item.forksCount}")
+            openIssuesView.text = getString(R.string.open_issues, "${item.openIssuesCount}")
+        }
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Fragmentが破棄される際にbindingも解放する
+        binding = null
     }
 }
