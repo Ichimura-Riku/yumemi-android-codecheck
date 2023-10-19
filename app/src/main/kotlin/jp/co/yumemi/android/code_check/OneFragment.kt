@@ -13,6 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.*
 import jp.co.yumemi.android.code_check.databinding.FragmentOneBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class OneFragment : Fragment(R.layout.fragment_one) {
 
@@ -31,13 +35,20 @@ class OneFragment : Fragment(R.layout.fragment_one) {
                 gotoRepositoryFragment(item)
             }
         })
+// 　　　　エンター押したときの関数
 
         binding?.searchInputText?.let { searchInputText ->
             searchInputText.setOnEditorActionListener { editText, action, _ ->
                 if (action == EditorInfo.IME_ACTION_SEARCH) {
                     editText.text.toString().let {
-                        viewModel.searchResults(it).apply {
-                            adapter.submitList(this)
+//                        こっから動いてなさそう
+//                        memo: applyは戻り値に対しての処理
+                        GlobalScope.launch {
+                            withContext(Dispatchers.Main) {
+                                viewModel.searchResults(it).apply {
+                                    adapter.submitList(this)
+                                }
+                            }
                         }
                     }
                     return@setOnEditorActionListener true
@@ -88,8 +99,6 @@ class CustomAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-//        (holder.itemView.findViewById<View>(R.id.repositoryNameView) as TextView).text =
-//            item.name
         val repositoryNameView = holder.itemView.findViewById<TextView>(R.id.repositoryNameView)
         repositoryNameView.text = item.name
 
