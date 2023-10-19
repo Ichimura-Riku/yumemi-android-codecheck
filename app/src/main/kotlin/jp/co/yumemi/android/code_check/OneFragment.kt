@@ -4,6 +4,7 @@
 package jp.co.yumemi.android.code_check
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,9 +44,14 @@ class OneFragment : Fragment(R.layout.fragment_one) {
                     editText.text.toString().let {
 //                        こっから動いてなさそう
 //                        memo: applyは戻り値に対しての処理
+                        Log.d("debug----", "1")
                         GlobalScope.launch {
+                            Log.d("debug----", "2")
                             withContext(Dispatchers.Main) {
+                                Log.d("debug----", "3")
+
                                 viewModel.searchResults(it).apply {
+
                                     adapter.submitList(this)
                                 }
                             }
